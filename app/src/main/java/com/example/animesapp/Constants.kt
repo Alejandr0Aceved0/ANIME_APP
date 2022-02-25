@@ -1,6 +1,6 @@
-package com.example.animesapp;
+package com.example.animesapp
 
-public class Constants {
-    public static String getAPIJikan = "https://api.jikan.moe/v4/anime";
-
+object Constants {
+    @JvmField
+    var getAPIJikan = "https://api.jikan.moe/v4/anime"
 }

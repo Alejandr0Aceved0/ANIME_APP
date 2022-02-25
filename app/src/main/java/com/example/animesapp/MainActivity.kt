@@ -1,169 +1,141 @@
-package com.example.animesapp;
+package com.example.animesapp
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.SearchView;
-import androidx.recyclerview.widget.AdapterListUpdateCallback;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-import androidx.viewpager2.widget.CompositePageTransformer;
-import androidx.viewpager2.widget.MarginPageTransformer;
-import androidx.viewpager2.widget.ViewPager2;
+import androidx.appcompat.app.AppCompatActivity
+import com.example.animesapp.Models.animes
+import com.example.animesapp.Models.animesList
+import com.android.volley.RequestQueue
+import androidx.viewpager2.widget.ViewPager2
+import androidx.recyclerview.widget.RecyclerView
+import com.example.animesapp.AdapterListAnimes
+import android.os.Bundle
+import com.example.animesapp.R
+import android.widget.TextView
+import android.graphics.Typeface
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.android.volley.toolbox.Volley
+import com.android.volley.toolbox.JsonObjectRequest
+import org.json.JSONObject
+import org.json.JSONArray
+import androidx.viewpager2.widget.CompositePageTransformer
+import androidx.viewpager2.widget.MarginPageTransformer
+import org.json.JSONException
+import com.android.volley.VolleyError
+import android.content.Intent
+import android.util.Log
+import android.view.View
+import androidx.appcompat.widget.SearchView
+import com.android.volley.Request
+import com.example.animesapp.DetailActivity
+import java.util.*
 
-import android.content.Context;
-import android.content.Intent;
-import android.graphics.Typeface;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
-import android.widget.TextView;
+class MainActivity : AppCompatActivity(), SearchView.OnQueryTextListener {
+    private var mListAnime: ArrayList<animes>? = null
+    private var mListAnimeFilter: ArrayList<animesList>? = null
+    private var mRequest: RequestQueue? = null
+    private var mRecyclerView: ViewPager2? = null
+    private var mRecyclerViewListAnimes: RecyclerView? = null
+    private var mAdapter: Adapter? = null
+    private var mAdapterListAnimes: AdapterListAnimes? = null
+    private var searchView: SearchView? = null
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+        val mBanner = findViewById<TextView>(R.id.banner)
+        mBanner.setTypeface(Typeface.createFromAsset(assets, "fonts/Anton-Regular.ttf"))
+        mRecyclerView = findViewById(R.id.reciclerView1)
+        searchView = findViewById(R.id.navSearch)
+        mRecyclerViewListAnimes = findViewById(R.id.animeList)
+        mRecyclerViewListAnimes!!.setHasFixedSize(true)
+        mRecyclerViewListAnimes!!.setLayoutManager(LinearLayoutManager(this))
+        mListAnime = ArrayList()
+        mListAnimeFilter = ArrayList()
+        mRequest = Volley.newRequestQueue(this)
+        animes
+        initListener()
+    }//Envia el ArrayList para ordenar por popularidad
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
-import com.android.volley.toolbox.Volley;
-import com.example.animesapp.Models.animes;
-import com.example.animesapp.Models.animesList;
+    //CARGAR EL reciclerView1
+    //RECYCLERVIEW CARRUSEL
 
-import org.json.JSONObject;
-import org.json.JSONException;
-import org.json.JSONArray;
+    //CARGA EL RECYCLER VIEW VERTICAL
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 
-import javax.xml.transform.Transformer;
-
-public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
-
-    private ArrayList<animes> mListAnime;
-    private ArrayList<animesList> mListAnimeFilter;
-    private RequestQueue mRequest;
-    private ViewPager2 mRecyclerView;
-    private RecyclerView mRecyclerViewListAnimes;
-    private com.example.animesapp.Adapter mAdapter;
-    private com.example.animesapp.AdapterListAnimes mAdapterListAnimes;
-    private SearchView searchView;
-
-        @Override
-        protected void onCreate (Bundle savedInstanceState){
-            super.onCreate(savedInstanceState);
-            setContentView(R.layout.activity_main);
-            TextView mBanner = findViewById(R.id.banner);
-            mBanner.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/Anton-Regular.ttf"));
-            mRecyclerView = findViewById(R.id.reciclerView1);
-            mRecyclerViewListAnimes = findViewById(R.id.animeList);
-            searchView = findViewById(R.id.navSearch);
-            mRecyclerViewListAnimes.setHasFixedSize(true);
-            mRecyclerViewListAnimes.setLayoutManager(new LinearLayoutManager(this));
-            mListAnime = new ArrayList<>();
-            mListAnimeFilter = new ArrayList<>();
-            mRequest = Volley.newRequestQueue(this);
-            getAnimes();
-            initListener();
-        }
-
-        private void getAnimes () {
+    // mAdapter.setOnItemClickListener(MainActivity.this);
+    //text.setText(mListAnime.toString());
+    // Request a string response from the provided URL.
+    private val animes: Unit
+        private get() {
             // Request a string response from the provided URL.
-            JsonObjectRequest stringRequest = new JsonObjectRequest(Request.Method.GET, Constants.getAPIJikan, null,
-                    new Response.Listener<JSONObject>() {
-                        @Override
-                        public void onResponse(JSONObject response) {
-
-                            try {
-                                JSONArray jsonArray = response.getJSONArray("data");
-                                for (int i = 0; i < jsonArray.length(); i++) {
-                                    JSONObject result = jsonArray.getJSONObject(i);
-
-                                    String mal_id = result.getString("mal_id");
-                                    String title = result.getString("title");
-                                    String rating = result.getString("rating");
-                                    String popularity = result.getString("popularity");
-                                    String status = result.getString("status");
-                                    String airing = result.getString("airing");
-                                    String season = result.getString("season");
-                                    String year = result.getString("year");
-                                    String synopsis = result.getString("synopsis");
-                                    synopsis = synopsis.replaceAll("'", "\\'");
-                                    String image = result.getJSONObject("images").getJSONObject("jpg").getString("large_image_url");
-
-                                    mListAnime.add(new animes(mal_id, title, rating, popularity, status, synopsis, airing, image, season, year));
-                                    mListAnimeFilter.add(new animesList(mal_id, title, rating, popularity, status, synopsis, airing, image, season, year));
-
-                                    Collections.sort(mListAnime);//Envia el ArrayList para ordenar por popularidad
-
-                                }
-
-                                //CARGAR EL reciclerView1
-
-                                mAdapter = new Adapter(MainActivity.this, mListAnime);
-                                mRecyclerView.setClipToPadding(false);
-                                mRecyclerView.setClipChildren(false);
-                                mRecyclerView.setOffscreenPageLimit(3);
-                                mRecyclerView.getChildAt(0).setOverScrollMode(View.OVER_SCROLL_NEVER);
-                                mRecyclerView.setAdapter(mAdapter);
-                                CompositePageTransformer transformer = new CompositePageTransformer();
-                                transformer.addTransformer(new MarginPageTransformer(80));
-                                transformer.addTransformer(new ViewPager2.PageTransformer() {
-                                    @Override
-                                    public void transformPage(@NonNull View page, float position) {
-                                        float v = 1 - Math.abs(position);
-
-                                        page.setScaleY(0.85f + v * 0.15f);
-                                    }
-                                });
-                                //RECYCLERVIEW CARRUSEL
-                                mRecyclerView.setPageTransformer(transformer);
-
-                                //CARGA EL RECYCLER VIEW VERTICAL
-                                mAdapterListAnimes = new AdapterListAnimes(MainActivity.this, mListAnimeFilter);
-                                mRecyclerViewListAnimes.setAdapter(mAdapterListAnimes);
-
-
-                                // mAdapter.setOnItemClickListener(MainActivity.this);
-
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                                System.out.println("ERROR ENN: " + e);
+            val stringRequest = JsonObjectRequest(Request.Method.GET, Constants.getAPIJikan, null,
+                    { response ->
+                        try {
+                            val jsonArray = response.getJSONArray("data")
+                            for (i in 0 until jsonArray.length()) {
+                                val result = jsonArray.getJSONObject(i)
+                                val mal_id = result.getString("mal_id")
+                                val title = result.getString("title")
+                                val rating = result.getString("rating")
+                                val popularity = result.getString("popularity")
+                                val status = result.getString("status")
+                                val airing = result.getString("airing")
+                                val season = result.getString("season")
+                                val year = result.getString("year")
+                                var synopsis = result.getString("synopsis")
+                                synopsis = synopsis.replace("'".toRegex(), "\\'")
+                                val image = result.getJSONObject("images").getJSONObject("jpg").getString("large_image_url")
+                                mListAnime!!.add(animes(mal_id, title, rating, popularity, status, synopsis, airing, image, season, year))
+                                mListAnimeFilter!!.add(animesList(mal_id, title, rating, popularity, status, synopsis, airing, image, season, year))
+                                Collections.sort(mListAnime) //Envia el ArrayList para ordenar por popularidad
                             }
-                            System.out.println(mListAnime);
-                            //text.setText(mListAnime.toString());
+
+                            //CARGAR EL reciclerView1
+                            mAdapter = Adapter(this@MainActivity, mListAnime!!)
+                            mRecyclerView!!.clipToPadding = false
+                            mRecyclerView!!.clipChildren = false
+                            mRecyclerView!!.offscreenPageLimit = 3
+                            mRecyclerView!!.getChildAt(0).overScrollMode = View.OVER_SCROLL_NEVER
+                            mRecyclerView!!.adapter = mAdapter
+                            val transformer = CompositePageTransformer()
+                            transformer.addTransformer(MarginPageTransformer(80))
+                            transformer.addTransformer { page, position ->
+                                val v = 1 - Math.abs(position)
+                                page.scaleY = 0.85f + v * 0.15f
+                            }
+                            //RECYCLERVIEW CARRUSEL
+                            mRecyclerView!!.setPageTransformer(transformer)
+
+                            //CARGA EL RECYCLER VIEW VERTICAL
+                            mAdapterListAnimes = AdapterListAnimes(this@MainActivity, mListAnimeFilter!!)
+                            mRecyclerViewListAnimes!!.adapter = mAdapterListAnimes
+
+
+                            // mAdapter.setOnItemClickListener(MainActivity.this);
+                        } catch (e: JSONException) {
+                            e.printStackTrace()
+                            println("ERROR ENN: $e")
                         }
-                    }, new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    Log.e("ANIMES FALLO :( ", "That didn't work! " + error);
-                }
-            });
-
-            mRequest.add(stringRequest)
-
-            ;
+                        println(mListAnime)
+                        //text.setText(mListAnime.toString());
+                    }) { error -> Log.e("ANIMES FALLO :( ", "That didn't work! $error") }
+            mRequest!!.add(stringRequest)
         }
 
-
-    private void initListener(){
-            searchView.setOnQueryTextListener(this);
+    private fun initListener() {
+        searchView!!.setOnQueryTextListener(this)
     }
 
-    @Override
-    public boolean onQueryTextSubmit(String query) {//SE EJECUTA OPRIMIENDO EL ICONO SEACH DEL TECLADO
-        return false;
+    override fun onQueryTextSubmit(query: String): Boolean { //SE EJECUTA OPRIMIENDO EL ICONO SEACH DEL TECLADO
+        return false
     }
 
-    @Override
-    public boolean onQueryTextChange(String newText) {//SE EJEECUTA CADA QUE ESCRIBAMOS EMPIEZA A BUSCAR
-            mAdapterListAnimes.filter(newText);
-        return false;
+    override fun onQueryTextChange(newText: String): Boolean { //SE EJEECUTA CADA QUE ESCRIBAMOS EMPIEZA A BUSCAR
+        mAdapterListAnimes!!.filter(newText)
+        return false
     }
 
-
-    public void ryAnimeClick(animes animesItem) {
-        Intent intent = new Intent(this, DetailActivity.class);
-        intent.putExtra("itemDetail", String.valueOf(animesItem));
-        startActivity(intent);
+    fun ryAnimeClick(animesItem: animes) {
+        val intent = Intent(this, DetailActivity::class.java)
+        intent.putExtra("itemDetail", animesItem.toString())
+        startActivity(intent)
     }
 }

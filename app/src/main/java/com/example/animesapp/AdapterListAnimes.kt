@@ -1,155 +1,122 @@
-package com.example.animesapp;
+package com.example.animesapp
 
-import android.annotation.SuppressLint;
-import android.content.Context;
-import android.content.Intent;
-import android.os.Build;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
+import com.example.animesapp.Models.animesList
+import androidx.recyclerview.widget.RecyclerView
+import android.view.ViewGroup
+import android.view.LayoutInflater
+import android.annotation.SuppressLint
+import android.content.Context
+import com.squareup.picasso.Picasso
+import android.content.Intent
+import android.os.Build
+import android.view.View
+import android.widget.ImageView
+import android.widget.TextView
+import java.util.ArrayList
+import java.util.stream.Collectors
 
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
+class AdapterListAnimes(private val mContext: Context, private val mListAnimes: ArrayList<animesList>) : RecyclerView.Adapter<AdapterListAnimes.ViewHolder>() {
+    private val mlistener: OnItemClickListener? = null
+    private val animesItems: MutableList<animesList>
 
-import com.example.animesapp.Models.animes;
-import com.example.animesapp.Models.animesList;
-import com.squareup.picasso.Picasso;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
-public class AdapterListAnimes extends RecyclerView.Adapter<AdapterListAnimes.ViewHolder> {
-
-    private Context mContext;
-    private ArrayList<animesList> mListAnimes;
-    private OnItemClickListener mlistener;
-    private List<animesList> animesItems;
-
-    public AdapterListAnimes(Context context, ArrayList<animesList> animesList){
-        mContext = context;
-        mListAnimes = animesList;
-        this.animesItems = new ArrayList<>();
-        animesItems.addAll(mListAnimes);
+    interface OnItemClickListener {
+        fun onItemClick(position: Int)
     }
 
-
-    public interface OnItemClickListener{
-        void onItemClick(int position);
-    }
-
-    @NonNull
-    @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(mContext)
-                .inflate(R.layout.animeslist, parent, false);
-        return new ViewHolder(v);
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val v = LayoutInflater.from(mContext)
+                .inflate(R.layout.animeslist, parent, false)
+        return ViewHolder(v)
     }
 
     @SuppressLint("ResourceAsColor")
-    @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-
-        animesList item = mListAnimes.get(position);
-        String title = item.getTitle();
-        String season = item.getSeason();
-        String year = item.getYear();
-        String status = item.getStatus();
-        String popularity = item.getPopularity();
-        String image = item.getImage();
-
-        holder.animeTitle.setText(title);
-        holder.animeSeason.setText( season);
-        holder.animeYear.setText(year);
-        holder.animePopularity.setText(popularity);
-        holder.animeStatus.setText(status);
-
-        if(status.equals("Finished Airing")){
-            holder.animeStatus.setBackgroundColor(R.color.redFinished);
-            holder.animeStatus.setTextColor(R.color.white);
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val item = mListAnimes[position]
+        val title = item.title
+        val season = item.season
+        val year = item.year
+        val status = item.status
+        val popularity = item.popularity
+        val image = item.image
+        holder.animeTitle.text = title
+        holder.animeSeason.text = season
+        holder.animeYear.text = year
+        holder.animePopularity.text = popularity
+        holder.animeStatus.text = status
+        if (status == "Finished Airing") {
+            holder.animeStatus.setBackgroundColor(R.color.redFinished)
+            holder.animeStatus.setTextColor(R.color.white)
         }
-        if(status.equals("Currently Airing")){
-            holder.animeStatus.setBackgroundColor(R.color.greenSuccess);
-            holder.animeStatus.setTextColor(R.color.white);
+        if (status == "Currently Airing") {
+            holder.animeStatus.setBackgroundColor(R.color.greenSuccess)
+            holder.animeStatus.setTextColor(R.color.white)
         }
-        Picasso.with(mContext).load(image).fit().centerInside().into(holder.animeImg);
-
-        holder.itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(holder.itemView.getContext(), DetailActivity.class);
-                intent.putExtra("itemDetail", item);
-                holder.itemView.getContext().startActivity(intent);
-            }
-        });
+        Picasso.with(mContext).load(image).fit().centerInside().into(holder.animeImg)
+        holder.itemView.setOnClickListener {
+            val intent = Intent(holder.itemView.context, DetailActivity::class.java)
+            intent.putExtra("itemDetail", item)
+            holder.itemView.context.startActivity(intent)
+        }
     }
 
-
-    @Override
-    public int getItemCount() {
-
-        return mListAnimes.size();
+    override fun getItemCount(): Int {
+        return mListAnimes.size
     }
 
-    public void filter(String strSearch){
-        if (strSearch.length() ==0){
-            mListAnimes.clear();
-            mListAnimes.addAll(animesItems);
-        }else{
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
-                mListAnimes.clear();
-                List<animesList> collect = animesItems.stream()
-                        .filter(i -> i.getTitle().contains(strSearch))
-                        .collect(Collectors.toList());
-                mListAnimes.addAll(collect);
-            }else{
-                mListAnimes.clear();
-                for (animesList i : animesItems){
-                    if (i.getTitle().contains(strSearch)){
-                        mListAnimes.add(i);
+    fun filter(strSearch: String) {
+        if (strSearch.length == 0) {
+            mListAnimes.clear()
+            mListAnimes.addAll(animesItems)
+        } else {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                mListAnimes.clear()
+                val collect = animesItems.stream()
+                        .filter { i: animesList -> i.title.contains(strSearch) }
+                        .collect(Collectors.toList())
+                mListAnimes.addAll(collect)
+            } else {
+                mListAnimes.clear()
+                for (i in animesItems) {
+                    if (i.title.contains(strSearch)) {
+                        mListAnimes.add(i)
                     }
                 }
             }
         }
-        notifyDataSetChanged();
+        notifyDataSetChanged()
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
-
+    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         //inicialize tv
-        TextView animeTitle;
-        TextView animeYear;
-        TextView animeSeason;
-        TextView animePopularity;
-        TextView animeStatus;
+        var animeTitle: TextView
+        var animeYear: TextView
+        var animeSeason: TextView
+        var animePopularity: TextView
+        var animeStatus: TextView
+
         //inicialize imgv
-        ImageView animeImg;
+        var animeImg: ImageView
 
-
-        public ViewHolder(@NonNull View itemView) {
-            super(itemView);
-
-            animeTitle = itemView.findViewById(R.id.animeTitle);
-            animeYear = itemView.findViewById(R.id.yearAnime);
-            animeSeason = itemView.findViewById(R.id.seasonAnime);
-            animePopularity = itemView.findViewById(R.id.popularityAnime);
-            animeStatus = itemView.findViewById(R.id.statusAnime);
-            animeImg = itemView.findViewById(R.id.animeImgCard);
-
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (mlistener != null){
-                        int position = getAdapterPosition();
-                        if (position != RecyclerView.NO_POSITION){
-                            mlistener.onItemClick(position);
-                        }
+        init {
+            animeTitle = itemView.findViewById(R.id.animeTitle)
+            animeYear = itemView.findViewById(R.id.yearAnime)
+            animeSeason = itemView.findViewById(R.id.seasonAnime)
+            animePopularity = itemView.findViewById(R.id.popularityAnime)
+            animeStatus = itemView.findViewById(R.id.statusAnime)
+            animeImg = itemView.findViewById(R.id.animeImgCard)
+            itemView.setOnClickListener {
+                if (mlistener != null) {
+                    val position = adapterPosition
+                    if (position != RecyclerView.NO_POSITION) {
+                        mlistener.onItemClick(position)
                     }
                 }
-            });
+            }
         }
     }
 
+    init {
+        animesItems = ArrayList()
+        animesItems.addAll(mListAnimes)
+    }
 }

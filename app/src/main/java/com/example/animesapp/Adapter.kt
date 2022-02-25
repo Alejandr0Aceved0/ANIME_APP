@@ -1,95 +1,71 @@
-package com.example.animesapp;
+package com.example.animesapp
 
-import android.content.Context;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
+import android.content.Context
+import com.example.animesapp.Models.animes
+import androidx.recyclerview.widget.RecyclerView
+import android.view.ViewGroup
+import android.view.LayoutInflater
+import android.view.View
+import android.widget.ImageView
+import com.example.animesapp.R
+import com.squareup.picasso.Picasso
+import android.widget.TextView
+import java.util.ArrayList
 
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
+class Adapter(private val mContext: Context, private val mListAnimes: ArrayList<animes>) : RecyclerView.Adapter<Adapter.ViewHolder>() {
+    private var mlistener: OnItemClickListener? = null
 
-import com.example.animesapp.Models.animes;
-import com.squareup.picasso.Picasso;
-
-import java.util.ArrayList;
-
-public class Adapter extends RecyclerView.Adapter<Adapter.ViewHolder> {
-
-    private Context mContext;
-    private ArrayList<animes> mListAnimes;
-    private OnItemClickListener mlistener;
-
-    public interface OnItemClickListener{
-        void onItemClick(int position);
+    interface OnItemClickListener {
+        fun onItemClick(position: Int)
     }
 
-    public void setOnItemClickListener( OnItemClickListener listener ){
-        mlistener = listener;
+    fun setOnItemClickListener(listener: OnItemClickListener?) {
+        mlistener = listener
     }
 
-    public Adapter ( Context context, ArrayList<animes> moviesList){
-        mContext = context;
-        mListAnimes = moviesList;
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val v = LayoutInflater.from(mContext)
+                .inflate(R.layout.animes, parent, false)
+        return ViewHolder(v)
     }
 
-    @NonNull
-    @Override
-    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View v = LayoutInflater.from(mContext)
-                .inflate(R.layout.animes, parent, false);
-        return new ViewHolder(v);
-    }
-
-    @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        animes item = mListAnimes.get(position);
-        String name = item.getTitle();
-        String rating = item.getRating();
-        String image = item.getImage();
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val item = mListAnimes[position]
+        val name = item.title
+        val rating = item.rating
+        val image = item.image
 
 //        holder.tvRating.setText(rating);
 //        holder.tvTitle.setText(name);
-        Picasso.with(mContext).load(image).fit().centerInside().into(holder.imgvPhoto);
+        Picasso.with(mContext).load(image).fit().centerInside().into(holder.imgvPhoto)
     }
 
-    @Override
-    public int getItemCount() {
-
-        return mListAnimes.size();
+    override fun getItemCount(): Int {
+        return mListAnimes.size
     }
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
-
+    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         //inicialize tv
-        TextView tvTitle;
-        TextView tvRating;
-        TextView tvDescription;
-        TextView tvAdded;
-        TextView tvRelease;
-        TextView tvRuntime;
+        var tvTitle: TextView? = null
+        var tvRating: TextView? = null
+        var tvDescription: TextView? = null
+        var tvAdded: TextView? = null
+        var tvRelease: TextView? = null
+        var tvRuntime: TextView? = null
+
         //inicialize imgv
-        ImageView imgvPhoto;
+        var imgvPhoto: ImageView
 
-
-        public ViewHolder(@NonNull View itemView) {
-            super(itemView);
-
-            imgvPhoto = itemView.findViewById(R.id.animeImg);
-
-            itemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    if (mlistener != null){
-                        int position = getAdapterPosition();
-                        if (position != RecyclerView.NO_POSITION){
-                            mlistener.onItemClick(position);
-                        }
+        init {
+            imgvPhoto = itemView.findViewById(R.id.animeImg)
+            itemView.setOnClickListener {
+                if (mlistener != null) {
+                    val position = adapterPosition
+                    if (position != RecyclerView.NO_POSITION) {
+                        mlistener!!.onItemClick(position)
                     }
                 }
-            });
+            }
         }
     }
-
 }

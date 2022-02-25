@@ -1,58 +1,39 @@
-package com.example.animesapp;
+package com.example.animesapp
 
-import android.graphics.Typeface;
-import android.os.Bundle;
-import android.widget.ImageView;
-import android.widget.TextView;
+import androidx.appcompat.app.AppCompatActivity
+import android.widget.TextView
+import com.example.animesapp.Models.animesList
+import android.os.Bundle
+import android.graphics.Typeface
+import android.widget.ImageView
+import com.squareup.picasso.Picasso
 
-import com.example.animesapp.Models.animesList;
-import com.squareup.picasso.Picasso;
+class DetailActivity : AppCompatActivity() {
 
-
-import androidx.appcompat.app.AppCompatActivity;
-
-public class DetailActivity extends AppCompatActivity {
-    private ImageView imgAnimeDetail;
-    private TextView animeTitleDetail;
-    private TextView animeStatusDetail;
-    private TextView animeIdDetail;
-    private TextView animeRatingDetail;
-    private TextView animePopularityDetail;
-    private TextView animeYearDetail;
-    private TextView animeSynopsisDetail;
-    private TextView animeAiringDetail;
-    private animesList itemDetail;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.anime_details);
-        itemDetail = (animesList) getIntent().getExtras().getSerializable("itemDetail");
-        setTitle(getClass().getSimpleName());
-        animeTitleDetail = findViewById(R.id.animeTitleDetail);
-        animeTitleDetail.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/Anton-Regular.ttf"));
-        imgAnimeDetail = findViewById(R.id.animeImgDetail);
-        animeStatusDetail = findViewById(R.id.statusAnimeDetails);
-        animeSynopsisDetail = findViewById(R.id.synopsisAnimeDetails);
-        animeIdDetail = findViewById(R.id.idAnimeDatails);
-        animeYearDetail = findViewById(R.id.yearAnimeDatails);
-        animeRatingDetail = findViewById(R.id.ratingAnimeDatails);
-        animePopularityDetail = findViewById(R.id.popularityAnimeDetails);
-        animeAiringDetail = findViewById(R.id.airingAnimeDetails);
-        //imgItemDetail.setImageResource((itemDetail.getImage()));
-        // Picasso.with(mContext).load(image).fit().centerInside().into(holder.animeImg);
-        Picasso.with(this).load(itemDetail.getImage()).fit().centerInside().into(imgAnimeDetail);
-        animeTitleDetail.setText(itemDetail.getTitle());
-        animeStatusDetail.setText(itemDetail.getStatus());
-        animeSynopsisDetail.setText(itemDetail.getSynopsis());
-        animeIdDetail.setText(itemDetail.getMal_id());
-        animeYearDetail.setText(itemDetail.getYear());
-        animeRatingDetail.setText(itemDetail.getRating());
-        animePopularityDetail.setText(itemDetail.getPopularity());
-        animeAiringDetail.setText(itemDetail.getAiring());
+    private var itemDetail: animesList? = null
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.anime_details)
+        itemDetail = intent.extras!!.getSerializable("itemDetail") as animesList?
+        title = javaClass.simpleName
+        val animeTitleDetail = findViewById<TextView>(R.id.animeTitleDetail)
+        animeTitleDetail.setTypeface(Typeface.createFromAsset(assets, "fonts/Anton-Regular.ttf"))
+        val imgAnimeDetail = findViewById<ImageView>(R.id.animeImgDetail)
+        val animeStatusDetail = findViewById<TextView>(R.id.statusAnimeDetails)
+        val animeSynopsisDetail = findViewById<TextView>(R.id.synopsisAnimeDetails)
+        val animeIdDetail = findViewById<TextView>(R.id.idAnimeDatails)
+        val animeYearDetail = findViewById<TextView>(R.id.yearAnimeDatails)
+        val animeRatingDetail = findViewById<TextView>(R.id.ratingAnimeDatails)
+        val animePopularityDetail = findViewById<TextView>(R.id.popularityAnimeDetails)
+        val animeAiringDetail = findViewById<TextView>(R.id.airingAnimeDetails)
+        Picasso.with(this).load(itemDetail!!.image).fit().centerInside().into(imgAnimeDetail)
+        animeTitleDetail.setText(itemDetail!!.title)
+        animeStatusDetail.setText(itemDetail!!.status)
+        animeSynopsisDetail.setText(itemDetail!!.synopsis)
+        animeIdDetail.setText(itemDetail!!.mal_id)
+        animeYearDetail.setText(itemDetail!!.year)
+        animeRatingDetail.setText(itemDetail!!.rating)
+        animePopularityDetail.setText(itemDetail!!.popularity)
+        animeAiringDetail.setText(itemDetail!!.airing)
     }
-
 }
-
-
-
