@@ -2,6 +2,7 @@ package com.example.animesapp;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
 import androidx.recyclerview.widget.AdapterListUpdateCallback;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -10,6 +11,7 @@ import androidx.viewpager2.widget.MarginPageTransformer;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.content.Context;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -34,27 +36,33 @@ import java.util.Comparator;
 
 import javax.xml.transform.Transformer;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
 
     private ArrayList<animes> mListAnime;
-    private ArrayList<animesList> mAnimesList;
+    private ArrayList<animes> mListAnimeFilter;
     private RequestQueue mRequest;
     private ViewPager2 mRecyclerView;
     private RecyclerView mRecyclerViewListAnimes;
     private com.example.animesapp.Adapter mAdapter;
     private com.example.animesapp.AdapterListAnimes mAdapterListAnimes;
+    private SearchView searchView;
 
         @Override
         protected void onCreate (Bundle savedInstanceState){
             super.onCreate(savedInstanceState);
             setContentView(R.layout.activity_main);
+            TextView mBanner = findViewById(R.id.banner);
+            mBanner.setTypeface(Typeface.createFromAsset(getAssets(), "fonts/Anton-Regular.ttf"));
             mRecyclerView = findViewById(R.id.reciclerView1);
             mRecyclerViewListAnimes = findViewById(R.id.animeList);
+            searchView = findViewById(R.id.navSearch);
             mRecyclerViewListAnimes.setHasFixedSize(true);
             mRecyclerViewListAnimes.setLayoutManager(new LinearLayoutManager(this));
             mListAnime = new ArrayList<>();
+            mListAnimeFilter = new ArrayList<>();
             mRequest = Volley.newRequestQueue(this);
             getAnimes();
+            initListener();
         }
 
         private void getAnimes () {
@@ -75,38 +83,30 @@ public class MainActivity extends AppCompatActivity {
                                     String popularity = result.getString("popularity");
                                     String status = result.getString("status");
                                     String airing = result.getString("airing");
+                                    String season = result.getString("season");
+                                    String year = result.getString("year");
                                     String synopsis = result.getString("synopsis");
                                     synopsis = synopsis.replaceAll("'", "\\'");
                                     String image = result.getJSONObject("images").getJSONObject("jpg").getString("large_image_url");
 
-                                    mListAnime.add(new animes(mal_id, title, rating, popularity, status, synopsis, airing, image));
-                                    mAnimesList.add(new animesList(mal_id, title, rating, popularity, status, synopsis, airing, image));
+                                    mListAnime.add(new animes(mal_id, title, rating, popularity, status, synopsis, airing, image, season, year));
+                                    mListAnimeFilter.add(new animes(mal_id, title, rating, popularity, status, synopsis, airing, image, season, year));
+
+                                    Collections.sort(mListAnimeFilter);//Envia el ArrayList para ordenar por popularidad
+
                                 }
-
-
-
-                            Collections.sort(mListAnime, new Comparator<animes>() {
-                                @Override
-                                public int compare(animes o1, animes o2) {
-                                    return o1.getMal_id().compareTo(o2.getMal_id());
-                                }
-                            });
-
 
                                 //CARGAR EL reciclerView1
 
-                                mAdapter = new Adapter(MainActivity.this, mListAnime);
+                                mAdapter = new Adapter(MainActivity.this, mListAnimeFilter);
                                 //mAdapter.setOnItemClickListener(MainActivity.this);
                                 mRecyclerView.setClipToPadding(false);
                                 mRecyclerView.setClipChildren(false);
                                 mRecyclerView.setOffscreenPageLimit(3);
                                 mRecyclerView.getChildAt(0).setOverScrollMode(View.OVER_SCROLL_NEVER);
                                 mRecyclerView.setAdapter(mAdapter);
-
-
                                 CompositePageTransformer transformer = new CompositePageTransformer();
                                 transformer.addTransformer(new MarginPageTransformer(80));
-
                                 transformer.addTransformer(new ViewPager2.PageTransformer() {
                                     @Override
                                     public void transformPage(@NonNull View page, float position) {
@@ -115,12 +115,13 @@ public class MainActivity extends AppCompatActivity {
                                         page.setScaleY(0.85f + v * 0.15f);
                                     }
                                 });
-
+                                //RECYCLERVIEW CARRUSEL
                                 mRecyclerView.setPageTransformer(transformer);
 
-
+                                //CARGA EL RECYCLER VIEW VERTICAL
                                 mAdapterListAnimes = new AdapterListAnimes(MainActivity.this, mListAnime);
                                 mRecyclerViewListAnimes.setAdapter(mAdapterListAnimes);
+
 
                                 // mAdapter.setOnItemClickListener(MainActivity.this);
 
@@ -142,4 +143,20 @@ public class MainActivity extends AppCompatActivity {
 
             ;
         }
+
+
+    private void initListener(){
+            searchView.setOnQueryTextListener(this);
+    }
+
+    @Override
+    public boolean onQueryTextSubmit(String query) {//SE EJECUTA OPRIMIENDO EL ICONO SEACH DEL TECLADO
+        return false;
+    }
+
+    @Override
+    public boolean onQueryTextChange(String newText) {//SE EJEECUTA CADA QUE ESCRIBAMOS EMPIEZA A BUSCAR
+            mAdapterListAnimes.filter(newText);
+        return false;
+    }
 }

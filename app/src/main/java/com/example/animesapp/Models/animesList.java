@@ -1,6 +1,6 @@
 package com.example.animesapp.Models;
 
-public class animesList {
+public class animesList implements  Comparable<animes>{
 
     private String mal_id;
     private String title;
@@ -10,8 +10,11 @@ public class animesList {
     private String synopsis;
     private String airing;
     private String image;
+    private String season;
+    private String year;
 
-    public animesList(String mal_id, String title, String rating, String popularity, String status, String synopsis, String airing, String image) {
+
+    public animesList(String mal_id, String title, String rating, String popularity, String status, String synopsis, String airing, String image, String season, String Year) {
         this.title = title;
         this.rating = rating;
         this.popularity = popularity;
@@ -19,7 +22,26 @@ public class animesList {
         this.synopsis = synopsis;
         this.airing = airing;
         this.image = image;
+        this.season = season;
+        this.year = year;
     }
+
+    public String getSeason() {
+        return season;
+    }
+
+    public void setSeason(String season) {
+        this.season = season;
+    }
+
+    public String getYear() {
+        return year;
+    }
+
+    public void setYear(String year) {
+        this.year = year;
+    }
+
 
     public String getMal_id() {
         return mal_id;
@@ -83,5 +105,18 @@ public class animesList {
 
     public void setImage(String image) {
         this.image = image;
+    }
+
+
+    @Override
+    public int compareTo(animes animes) {
+
+        if (Integer.parseInt(animes.getYear() ) < Integer.parseInt(popularity)) {
+            return -1;
+        } else if (Integer.parseInt(getPopularity()) < Integer.parseInt(popularity)) {
+            return 0;
+        } else {
+            return 1;
+        }
     }
 }
