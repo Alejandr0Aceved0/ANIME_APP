@@ -16,7 +16,10 @@ public class animesList implements Serializable {
     private String year;
 
 
-    public animesList(String mal_id, String title, String rating, String popularity, String status, String synopsis, String airing, String image, String season, String Year) {
+
+
+    public animesList(String mal_id, String title, String rating, String popularity, String status, String synopsis, String airing, String image, String season, String year) {
+        this.mal_id = mal_id;
         this.title = title;
         this.rating = rating;
         this.popularity = popularity;
@@ -43,7 +46,6 @@ public class animesList implements Serializable {
     public void setYear(String year) {
         this.year = year;
     }
-
 
     public String getMal_id() {
         return mal_id;

@@ -1,5 +1,7 @@
 package com.example.animesapp.Models;
 
+import java.io.Serializable;
+
 public class animes implements Comparable<animes>{
 
     private String mal_id;
