@@ -1,6 +1,8 @@
 package com.example.animesapp.Models;
 
-public class animesList implements  Comparable<animes>{
+import java.io.Serializable;
+
+public class animesList implements Serializable {
 
     private String mal_id;
     private String title;
@@ -107,16 +109,4 @@ public class animesList implements  Comparable<animes>{
         this.image = image;
     }
 
-
-    @Override
-    public int compareTo(animes animes) {
-
-        if (Integer.parseInt(animes.getYear() ) < Integer.parseInt(popularity)) {
-            return -1;
-        } else if (Integer.parseInt(getPopularity()) < Integer.parseInt(popularity)) {
-            return 0;
-        } else {
-            return 1;
-        }
-    }
 }

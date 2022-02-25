@@ -11,6 +11,7 @@ import androidx.viewpager2.widget.MarginPageTransformer;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.util.Log;
@@ -39,7 +40,7 @@ import javax.xml.transform.Transformer;
 public class MainActivity extends AppCompatActivity implements SearchView.OnQueryTextListener {
 
     private ArrayList<animes> mListAnime;
-    private ArrayList<animes> mListAnimeFilter;
+    private ArrayList<animesList> mListAnimeFilter;
     private RequestQueue mRequest;
     private ViewPager2 mRecyclerView;
     private RecyclerView mRecyclerViewListAnimes;
@@ -90,16 +91,15 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                                     String image = result.getJSONObject("images").getJSONObject("jpg").getString("large_image_url");
 
                                     mListAnime.add(new animes(mal_id, title, rating, popularity, status, synopsis, airing, image, season, year));
-                                    mListAnimeFilter.add(new animes(mal_id, title, rating, popularity, status, synopsis, airing, image, season, year));
+                                    mListAnimeFilter.add(new animesList(mal_id, title, rating, popularity, status, synopsis, airing, image, season, year));
 
-                                    Collections.sort(mListAnimeFilter);//Envia el ArrayList para ordenar por popularidad
+                                    Collections.sort(mListAnime);//Envia el ArrayList para ordenar por popularidad
 
                                 }
 
                                 //CARGAR EL reciclerView1
 
-                                mAdapter = new Adapter(MainActivity.this, mListAnimeFilter);
-                                //mAdapter.setOnItemClickListener(MainActivity.this);
+                                mAdapter = new Adapter(MainActivity.this, mListAnime);
                                 mRecyclerView.setClipToPadding(false);
                                 mRecyclerView.setClipChildren(false);
                                 mRecyclerView.setOffscreenPageLimit(3);
@@ -119,7 +119,7 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
                                 mRecyclerView.setPageTransformer(transformer);
 
                                 //CARGA EL RECYCLER VIEW VERTICAL
-                                mAdapterListAnimes = new AdapterListAnimes(MainActivity.this, mListAnime);
+                                mAdapterListAnimes = new AdapterListAnimes(MainActivity.this, mListAnimeFilter);
                                 mRecyclerViewListAnimes.setAdapter(mAdapterListAnimes);
 
 
@@ -158,5 +158,12 @@ public class MainActivity extends AppCompatActivity implements SearchView.OnQuer
     public boolean onQueryTextChange(String newText) {//SE EJEECUTA CADA QUE ESCRIBAMOS EMPIEZA A BUSCAR
             mAdapterListAnimes.filter(newText);
         return false;
+    }
+
+
+    public void ryAnimeClick(animes animesItem) {
+        Intent intent = new Intent(this, DetailActivity.class);
+        intent.putExtra("itemDetail", String.valueOf(animesItem));
+        startActivity(intent);
     }
 }

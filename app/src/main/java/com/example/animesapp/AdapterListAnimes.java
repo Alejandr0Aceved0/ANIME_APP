@@ -2,6 +2,7 @@ package com.example.animesapp;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.animesapp.Models.animes;
+import com.example.animesapp.Models.animesList;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -22,11 +24,11 @@ import java.util.stream.Collectors;
 public class AdapterListAnimes extends RecyclerView.Adapter<AdapterListAnimes.ViewHolder> {
 
     private Context mContext;
-    private ArrayList<animes> mListAnimes;
+    private ArrayList<animesList> mListAnimes;
     private OnItemClickListener mlistener;
-    private List<animes> animesItems;
+    private List<animesList> animesItems;
 
-    public AdapterListAnimes(Context context, ArrayList<animes> animesList){
+    public AdapterListAnimes(Context context, ArrayList<animesList> animesList){
         mContext = context;
         mListAnimes = animesList;
         this.animesItems = new ArrayList<>();
@@ -37,12 +39,6 @@ public class AdapterListAnimes extends RecyclerView.Adapter<AdapterListAnimes.Vi
     public interface OnItemClickListener{
         void onItemClick(int position);
     }
-
-    public void setOnItemClickListener( OnItemClickListener listener ){
-        mlistener = listener;
-    }
-
-
 
     @NonNull
     @Override
@@ -56,7 +52,7 @@ public class AdapterListAnimes extends RecyclerView.Adapter<AdapterListAnimes.Vi
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
 
-        animes item = mListAnimes.get(position);
+        animesList item = mListAnimes.get(position);
         String title = item.getTitle();
         String season = item.getSeason();
         String year = item.getYear();
@@ -65,10 +61,10 @@ public class AdapterListAnimes extends RecyclerView.Adapter<AdapterListAnimes.Vi
         String image = item.getImage();
 
         holder.animeTitle.setText(title);
-        holder.animeSeason.setText("Season: "+ season);
-        holder.animeYear.setText("Year: " + year);
-        holder.animePopularity.setText("Popularity: "+popularity);
-        holder.animeStatus.setText("Status: "+ status);
+        holder.animeSeason.setText( season);
+        holder.animeYear.setText(year);
+        holder.animePopularity.setText(popularity);
+        holder.animeStatus.setText(status);
 
         if(status.equals("Finished Airing")){
             holder.animeStatus.setBackgroundColor(R.color.redFinished);
@@ -79,6 +75,15 @@ public class AdapterListAnimes extends RecyclerView.Adapter<AdapterListAnimes.Vi
             holder.animeStatus.setTextColor(R.color.white);
         }
         Picasso.with(mContext).load(image).fit().centerInside().into(holder.animeImg);
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(holder.itemView.getContext(), DetailActivity.class);
+                intent.putExtra("itemDetail", item);
+                holder.itemView.getContext().startActivity(intent);
+            }
+        });
     }
 
 
@@ -95,13 +100,13 @@ public class AdapterListAnimes extends RecyclerView.Adapter<AdapterListAnimes.Vi
         }else{
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N){
                 mListAnimes.clear();
-                List<animes> collect = animesItems.stream()
+                List<animesList> collect = animesItems.stream()
                         .filter(i -> i.getTitle().contains(strSearch))
                         .collect(Collectors.toList());
                 mListAnimes.addAll(collect);
             }else{
                 mListAnimes.clear();
-                for (animes i : animesItems){
+                for (animesList i : animesItems){
                     if (i.getTitle().contains(strSearch)){
                         mListAnimes.add(i);
                     }
@@ -127,11 +132,11 @@ public class AdapterListAnimes extends RecyclerView.Adapter<AdapterListAnimes.Vi
             super(itemView);
 
             animeTitle = itemView.findViewById(R.id.animeTitle);
-            animeYear = itemView.findViewById(R.id.animeYear);
-            animeSeason = itemView.findViewById(R.id.animeSeason);
-            animePopularity = itemView.findViewById(R.id.animePopularity);
-            animeStatus = itemView.findViewById(R.id.animeStatus);
-            animeImg = itemView.findViewById(R.id.animeImg);
+            animeYear = itemView.findViewById(R.id.yearAnime);
+            animeSeason = itemView.findViewById(R.id.seasonAnime);
+            animePopularity = itemView.findViewById(R.id.popularityAnime);
+            animeStatus = itemView.findViewById(R.id.statusAnime);
+            animeImg = itemView.findViewById(R.id.animeImgCard);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -146,7 +151,5 @@ public class AdapterListAnimes extends RecyclerView.Adapter<AdapterListAnimes.Vi
             });
         }
     }
-
-
 
 }
